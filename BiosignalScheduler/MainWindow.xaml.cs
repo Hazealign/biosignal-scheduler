@@ -15,7 +15,7 @@ namespace BiosignalScheduler
 
             var scheduler = new Scheduler.Scheduler();
             scheduler.Start();
-            scheduler.AddOperator(new SQLExport());
+            scheduler.AddOperator(new WaveformExport());
         }
     }
 }

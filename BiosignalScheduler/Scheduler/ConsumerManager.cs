@@ -37,7 +37,6 @@ namespace BiosignalScheduler.Scheduler
 
             public void HandleMessage(IMessage message)
             {
-                Logger.Debug("HandleMessage");
                 var json = Encoding.UTF8.GetString(message.Body);
                 dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(json);
                 Instance.ConsumingList.Add(obj);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BiosignalScheduler.Export
 {
-    class CSVExport: Scheduler.IScheduleOperator
+    class NumericExport: Scheduler.IScheduleOperator
     {
         public void Operate(List<dynamic> data)
         {

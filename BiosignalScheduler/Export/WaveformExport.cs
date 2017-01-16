@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace BiosignalScheduler.Export
 {
-    class SQLExport: Scheduler.IScheduleOperator
-    {
+    public class WaveformExport: Scheduler.IScheduleOperator
+    { 
         public void Operate(List<dynamic> data)
         {
             

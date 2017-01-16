@@ -29,11 +29,7 @@ namespace BiosignalScheduler.Scheduler
                 .Retry()
                 .Subscribe(list =>
                 {
-                    Operators.ForEach(op =>
-                    {
-                        op.Operate(list);
-                    });
-
+                    Operators.ForEach(op => op.Operate(list));
                     list.Clear();
                 }, err =>
                 {
