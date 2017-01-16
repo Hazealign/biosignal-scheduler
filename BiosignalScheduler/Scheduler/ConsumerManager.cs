@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Text;
+using BiosignalScheduler.Model;
 using Castle.Core.Logging;
 using Newtonsoft.Json;
 using NsqSharp;
@@ -10,12 +11,12 @@ namespace BiosignalScheduler.Scheduler
     public sealed class ConsumerManager
     {
         public static ConsumerManager Instance { get; } = new ConsumerManager();
-        public List<dynamic> ConsumingList { get; }
+        public List<MqModel> ConsumingList { get; }
         private readonly Consumer _consumer;
 
         private ConsumerManager()
         {
-            ConsumingList = new List<dynamic>();
+            ConsumingList = new List<MqModel>();
             _consumer = new Consumer("Biosignal", "Channel");
             _consumer.AddHandler(new MessageHandler());
         }
@@ -38,7 +39,7 @@ namespace BiosignalScheduler.Scheduler
             public void HandleMessage(IMessage message)
             {
                 var json = Encoding.UTF8.GetString(message.Body);
-                dynamic obj = JsonConvert.DeserializeObject<ExpandoObject>(json);
+                var obj = JsonConvert.DeserializeObject<MqModel>(json);
                 Instance.ConsumingList.Add(obj);
             }
 

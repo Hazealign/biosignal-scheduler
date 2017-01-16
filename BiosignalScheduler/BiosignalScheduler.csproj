@@ -103,6 +103,7 @@
     </ApplicationDefinition>
     <Compile Include="Export\NumericExport.cs" />
     <Compile Include="Export\WaveformExport.cs" />
+    <Compile Include="Model\MqModel.cs" />
     <Compile Include="Scheduler\ConsumerManager.cs" />
     <Compile Include="Scheduler\IScheduleOperator.cs" />
     <Compile Include="Scheduler\Scheduler.cs" />
@@ -149,9 +150,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

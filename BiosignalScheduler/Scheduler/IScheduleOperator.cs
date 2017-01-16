@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BiosignalScheduler.Model;
 
 namespace BiosignalScheduler.Scheduler
 {
     public interface IScheduleOperator
     {
-        void Operate(List<dynamic> data);
+        void Operate(List<MqModel> data);
     }
 }
