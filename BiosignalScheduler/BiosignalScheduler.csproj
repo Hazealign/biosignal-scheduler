@@ -103,7 +103,9 @@
     </ApplicationDefinition>
     <Compile Include="Export\NumericExport.cs" />
     <Compile Include="Export\WaveformExport.cs" />
+    <Compile Include="Model\DatabaseModel.cs" />
     <Compile Include="Model\MqModel.cs" />
+    <Compile Include="Model\SQLHelper.cs" />
     <Compile Include="Scheduler\ConsumerManager.cs" />
     <Compile Include="Scheduler\IScheduleOperator.cs" />
     <Compile Include="Scheduler\Scheduler.cs" />

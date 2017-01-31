@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace BiosignalScheduler.Model
 {
+    [Serializable]
     public class MqModel
     {
         [JsonProperty("TIMESTAMP", Required = Required.Always)]
@@ -54,31 +52,47 @@ namespace BiosignalScheduler.Model
         [JsonProperty("ECG", Required = Required.AllowNull)]
         public List<double> EcgWave { get; set; }
 
-        public KeyValuePair<string, object> GetKeyValue()
+        [JsonProperty("VALUE_UNIT", Required = Required.Always)]
+        public string Unit { get; set; }
+
+        [JsonProperty("UDID", Required = Required.Always)]
+        public string UniqueDeviceId { get; set; }
+
+        [JsonProperty("PATIENT_ID", Required = Required.Always)]
+        public string PatientId { get; set; }
+
+        public bool IsNumeric => GetValue().GetType() == typeof(List<double>);
+
+        public object GetValue()
         {
-            switch (this.Key)
+            switch (Key)
             {
                 case "BLOOD_PRESSURE_SYS":
-                    return new KeyValuePair<string, object>(this.Key, BloodPressureSys);
+                    return BloodPressureSys;
                 case "BLOOD_PRESSURE_DIA":
-                    return new KeyValuePair<string, object>(this.Key, BloodPressureDia);
+                    return BloodPressureDia;
                 case "BLOOD_PRESSURE_MEAN":
-                    return new KeyValuePair<string, object>(this.Key, BloodPressureMean);
+                    return BloodPressureMean;
                 case "ET_CO2":
-                    return new KeyValuePair<string, object>(this.Key, EtCo2);
+                    return EtCo2;
                 case "AIRWAY_RESP_RATE":
-                    return new KeyValuePair<string, object>(this.Key, AirwayRespRate);
+                    return AirwayRespRate;
                 case "PLETH_WAVE":
-                    return new KeyValuePair<string, object>(this.Key, PlethWave);
+                    return PlethWave;
                 case "HEART_RATE":
-                    return new KeyValuePair<string, object>(this.Key, HeartRate);
+                    return HeartRate;
                 case "SPO2":
-                    return new KeyValuePair<string, object>(this.Key, SpO2);
+                    return SpO2;
                 case "RESP_RATE":
-                    return new KeyValuePair<string, object>(this.Key, RespRate);
+                    return RespRate;
                 default:
-                    return new KeyValuePair<string, object>("ECG", EcgWave);
+                    return EcgWave;
             }
+        }
+
+        public KeyValuePair<string, object> GetKeyValue()
+        {
+            return new KeyValuePair<string, object>(Key.Contains("ECG")? "ECG": Key, GetValue());
         }
     }
 }

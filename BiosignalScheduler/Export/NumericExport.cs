@@ -1,17 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BiosignalScheduler.Model;
 
 namespace BiosignalScheduler.Export
 {
-    class NumericExport: Scheduler.IScheduleOperator
+    internal class NumericExport: Scheduler.IScheduleOperator
     {
+        private readonly SqlHelper _helper = SqlHelper.Instance(new SqlHelper.Connection
+        {
+            Server = "",
+            UserId = "",
+            Password = "",
+            Database = ""
+        });
+
         public void Operate(List<MqModel> data)
         {
-            Console.WriteLine(data);
+            Filter(data).ForEach(async val => await _helper.InsertNumericValueAsync(val));
         }
+
+        private static List<MqModel> Filter(IEnumerable<MqModel> origin) =>
+            origin.Where(val => val.IsNumeric).ToList();
     }
 }
