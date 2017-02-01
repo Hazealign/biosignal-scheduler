@@ -58,7 +58,7 @@ namespace BiosignalScheduler.Model
         [JsonProperty("PATIENT_ID", Required = Required.Always)]
         public string PatientId { get; set; }
 
-        public bool IsNumeric => GetValue().GetType() == typeof(List<double>);
+        public bool IsNumeric => GetValue().GetType() != typeof(List<double>);
 
         public object GetValue()
         {
