@@ -19,9 +19,6 @@ namespace BiosignalScheduler.Model
         [JsonProperty("HOST", Required = Required.Always)]
         public string Host { get; set; }
 
-        [JsonProperty("KEY", Required = Required.Always)]
-        public string Key { get; set; }
-
         [JsonProperty("BLOOD_PRESSURE_SYS", Required = Required.AllowNull)]
         public int BloodPressureSys { get; set; }
 
@@ -65,7 +62,7 @@ namespace BiosignalScheduler.Model
 
         public object GetValue()
         {
-            switch (Key)
+            switch (Type)
             {
                 case "BLOOD_PRESSURE_SYS":
                     return BloodPressureSys;
@@ -92,7 +89,7 @@ namespace BiosignalScheduler.Model
 
         public KeyValuePair<string, object> GetKeyValue()
         {
-            return new KeyValuePair<string, object>(Key.Contains("ECG")? "ECG": Key, GetValue());
+            return new KeyValuePair<string, object>(Type.Contains("ECG")? "ECG": Type, GetValue());
         }
     }
 }
