@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace BiosignalScheduler.Model
 {
     [Serializable]
-    public class MqModel
+    public class MqModel: ICloneable
     {
         [JsonProperty("TIMESTAMP", Required = Required.Always)]
         public DateTime Timestamp { get; set; }
@@ -19,34 +19,34 @@ namespace BiosignalScheduler.Model
         [JsonProperty("HOST", Required = Required.Always)]
         public string Host { get; set; }
 
-        [JsonProperty("BLOOD_PRESSURE_SYS", Required = Required.AllowNull)]
-        public int BloodPressureSys { get; set; }
+        [JsonProperty("BLOOD_PRESSURE_SYS")]
+        public double BloodPressureSys { get; set; }
 
-        [JsonProperty("BLOOD_PRESSURE_DIA", Required = Required.AllowNull)]
-        public int BloodPressureDia { get; set; }
+        [JsonProperty("BLOOD_PRESSURE_DIA")]
+        public double BloodPressureDia { get; set; }
 
-        [JsonProperty("BLOOD_PRESSURE_MEAN", Required = Required.AllowNull)]
-        public int BloodPressureMean { get; set; }
+        [JsonProperty("BLOOD_PRESSURE_MEAN")]
+        public double BloodPressureMean { get; set; }
 
-        [JsonProperty("ET_CO2", Required = Required.AllowNull)]
-        public int EtCo2 { get; set; }
+        [JsonProperty("ET_CO2")]
+        public double EtCo2 { get; set; }
 
-        [JsonProperty("AIRWAY_RESP_RATE", Required = Required.AllowNull)]
-        public int AirwayRespRate { get; set; }
+        [JsonProperty("AIRWAY_RESP_RATE")]
+        public double AirwayRespRate { get; set; }
 
-        [JsonProperty("PLETH_WAVE", Required = Required.AllowNull)]
+        [JsonProperty("PLETH_WAVE")]
         public List<double> PlethWave { get; set; }
 
-        [JsonProperty("HEART_RATE", Required = Required.AllowNull)]
-        public int HeartRate { get; set; }
+        [JsonProperty("HEART_RATE")]
+        public double HeartRate { get; set; }
 
-        [JsonProperty("SPO2", Required = Required.AllowNull)]
-        public int SpO2 { get; set; }
+        [JsonProperty("SPO2")]
+        public double SpO2 { get; set; }
 
-        [JsonProperty("RESP_RATE", Required = Required.AllowNull)]
-        public int RespRate { get; set; }
+        [JsonProperty("RESP_RATE")]
+        public double RespRate { get; set; }
 
-        [JsonProperty("ECG", Required = Required.AllowNull)]
+        [JsonProperty("ECG")]
         public List<double> EcgWave { get; set; }
 
         [JsonProperty("VALUE_UNIT", Required = Required.Always)]
@@ -90,6 +90,30 @@ namespace BiosignalScheduler.Model
         public KeyValuePair<string, object> GetKeyValue()
         {
             return new KeyValuePair<string, object>(Type.Contains("ECG")? "ECG": Type, GetValue());
+        }
+
+        public object Clone()
+        {
+            return new MqModel()
+            {
+                Timestamp = Timestamp,
+                AirwayRespRate = AirwayRespRate,
+                BloodPressureDia = BloodPressureDia,
+                BloodPressureMean = BloodPressureMean,
+                BloodPressureSys = BloodPressureSys,
+                EcgWave = EcgWave,
+                EtCo2 = EtCo2,
+                HeartRate = HeartRate,
+                Host = Host,
+                PatientId = PatientId,
+                Type = Type,
+                Port = Port,
+                UniqueDeviceId = UniqueDeviceId,
+                Unit = Unit,
+                RespRate = RespRate,
+                PlethWave = PlethWave,
+                SpO2 = SpO2
+            };
         }
     }
 }

@@ -9,7 +9,7 @@ namespace BiosignalScheduler.Model
         {
             public string Observation { get; set; }
             public string WaveName { get; set; }
-            public long ObservationType { get; set; }
+            public int ObservationType { get; set; }
         }
 
         [Serializable]

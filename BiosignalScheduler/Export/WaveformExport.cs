@@ -20,7 +20,7 @@ namespace BiosignalScheduler.Export
 
         public void Operate(List<MqModel> data)
         {
-            var startDate = new DateTime();
+            var startDate = DateTime.Now;
             var endDate = new DateTime(startDate.Ticks + 1000 * 60 * 10);
 
             Filter(data).ForEach(async val =>
@@ -30,24 +30,25 @@ namespace BiosignalScheduler.Export
             });
         }
 
-        private static string WriteToCsv(string patientId, string type, 
+        private string WriteToCsv(string patientId, string type, 
             List<MqModel> data, DateTime startDate, DateTime endDate)
         {
+            var tmpPatientId = _helper.GetAnonymousId(patientId);
             // Redefine Data.
             var list = data.FindAll(obj => obj.Type.Equals(type) && obj.PatientId.Equals(patientId));
             list.Sort((x, y) => y.Timestamp.CompareTo(x.Timestamp));
             var newValues = new List<double>();
-            list.ForEach(val => newValues.AddRange((double[]) val.GetValue()));
+            list.ForEach(val => newValues.AddRange((List<double>) val.GetValue()));
             
             var startDateStr = SqlHelper.DateTimeToString(startDate, "{0:yyyyMMdd}");
             var endDateStr = SqlHelper.DateTimeToString(endDate, "{0:yyyyMMdd}");
             var startTimeStr = SqlHelper.DateTimeToString(startDate, "{0:HHmmss}");
             var endTimeStr = SqlHelper.DateTimeToString(endDate, "{0:HHmmss}");
-            var filePath = $"D:\\BiosignalRepository\\CSV\\{patientId}\\{startDateStr}\\"
-                           + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{type}.csv";
+            var folderPath = $"D:\\BiosignalRepository\\CSV\\{tmpPatientId}\\{startDateStr}\\";
+            var filePath = folderPath + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{type}.csv";
 
-            Directory.CreateDirectory(filePath);
-            using (var file = new StreamWriter(filePath))
+            Directory.CreateDirectory(folderPath);
+            using (var file = File.CreateText(filePath))
             {
                 for (var i = 1; i <= newValues.Count; ++i)
                 {
@@ -68,7 +69,7 @@ namespace BiosignalScheduler.Export
         }
 
         private static List<MqModel> Filter(IEnumerable<MqModel> origin) =>
-            origin.Where(val => val.IsNumeric).Distinct(new TypeComparer()).ToList();
+            origin.Where(val => !val.IsNumeric).Distinct(new TypeComparer()).ToList();
 
         internal class TypeComparer : EqualityComparer<MqModel>
         {

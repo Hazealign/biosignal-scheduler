@@ -29,14 +29,8 @@ namespace BiosignalScheduler.Model
         {
             _innerConn = conn;
             _logger = new ConsoleLogger("SqlHelper", LoggerLevel.Error);
-            _mappingTables = Await(GetMappingTablesAsync());
-            _patientIdMaps = Await(GetPatientIdMapsAsync());
-        }
-
-        private static T Await<T>(Task<T> task)
-        {
-            task.Wait();
-            return task.Result;
+            _mappingTables = GetMappingTables();
+            _patientIdMaps = GetPatientIdMaps();
         }
 
         private static string EncryptSha256(string origin)
@@ -52,12 +46,9 @@ namespace BiosignalScheduler.Model
         {
             if (_patientIdMaps.Any(item => item.PatientId.Equals(patientId)))
                 return _patientIdMaps.Find(item => item.PatientId.Equals(patientId)).AnonymousId;
-            else
-            {
-                var anonymousId = EncryptSha256(patientId).Substring(0, 20);
-                AddPatientIdMap(patientId, anonymousId).Wait();
-                return anonymousId;
-            }
+            var anonymousId = EncryptSha256(patientId).Replace("-", "").ToLower().Substring(0, 20);
+            AddPatientIdMap(patientId, anonymousId);
+            return anonymousId;
         }
 
         public string GetMetricId(string origin)
@@ -67,7 +58,7 @@ namespace BiosignalScheduler.Model
                 : origin;
         }
 
-        private async Task AddPatientIdMap(string patientId, string anonymousId)
+        private void AddPatientIdMap(string patientId, string anonymousId)
         {
             const string sql = @"INSERT INTO patientId_mapping (patient_id, anonymous_id) 
                 VALUES (@patientId, @anonymousId)";
@@ -80,9 +71,9 @@ namespace BiosignalScheduler.Model
                     command.Parameters.AddWithValue("@patientId", patientId);
                     command.Parameters.AddWithValue("@anonymousId", anonymousId);
 
-                    await conn.OpenAsync();
+                    conn.Open();
                     command.CommandType = CommandType.Text;
-                    await command.ExecuteNonQueryAsync();
+                    command.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
@@ -162,9 +153,9 @@ namespace BiosignalScheduler.Model
             }
         }
 
-        public async Task<List<DatabaseModel.PatientIdMap>> GetPatientIdMapsAsync()
+        public List<DatabaseModel.PatientIdMap> GetPatientIdMaps()
         {
-            const string sql = "SELECT * FROM patient_map";
+            const string sql = "SELECT * FROM patientId_mapping";
             var table = new List<DatabaseModel.PatientIdMap>();
 
             using (var conn = new SqlConnection(_innerConn.ToString()))
@@ -172,16 +163,16 @@ namespace BiosignalScheduler.Model
             {
                 try
                 {
-                    await conn.OpenAsync();
-                    var reader = await command.ExecuteReaderAsync();
+                    conn.Open();
+                    var reader = command.ExecuteReader();
 
                     var ndxPatientId = reader.GetOrdinal("patient_id");
                     var ndxAnonymousId = reader.GetOrdinal("anonymous_id");
 
-                    while (await reader.ReadAsync())
+                    while (reader.Read())
                     {
-                        var patientId = await reader.GetFieldValueAsync<string>(ndxPatientId);
-                        var anonymousId = await reader.GetFieldValueAsync<string>(ndxAnonymousId);
+                        var patientId = reader.GetFieldValue<string>(ndxPatientId);
+                        var anonymousId = reader.GetFieldValue<string>(ndxAnonymousId);
                         table.Add(new DatabaseModel.PatientIdMap
                         {
                             PatientId = patientId,
@@ -198,7 +189,7 @@ namespace BiosignalScheduler.Model
             return table;
         }
 
-        public async Task<List<DatabaseModel.MappingTable>> GetMappingTablesAsync()
+        public List<DatabaseModel.MappingTable> GetMappingTables()
         {
             const string sql = "SELECT * FROM mapping_table";
             var table = new List<DatabaseModel.MappingTable>();
@@ -208,18 +199,18 @@ namespace BiosignalScheduler.Model
             {
                 try
                 {
-                    await conn.OpenAsync();
-                    var reader = await command.ExecuteReaderAsync();
+                    conn.Open();
+                    var reader = command.ExecuteReader();
 
                     var ndxObservation = reader.GetOrdinal("observation");
                     var ndxWaveName = reader.GetOrdinal("wave_name");
                     var ndxObservationType = reader.GetOrdinal("observation_type");
 
-                    while (await reader.ReadAsync())
+                    while (reader.Read())
                     {
-                        var observation = await reader.GetFieldValueAsync<string>(ndxObservation);
-                        var waveName = await reader.GetFieldValueAsync<string>(ndxWaveName);
-                        var observationType = await reader.GetFieldValueAsync<long>(ndxObservationType);
+                        var observation = reader.GetFieldValue<string>(ndxObservation);
+                        var waveName = reader.GetFieldValue<string>(ndxWaveName);
+                        var observationType = reader.GetFieldValue<int>(ndxObservationType);
                         table.Add(new DatabaseModel.MappingTable
                         {
                             Observation = observation, 
@@ -265,7 +256,7 @@ namespace BiosignalScheduler.Model
 
             public override string ToString()
             {
-                return $"server={Server}; uid={UserId}; password={Password} database={Database}";
+                return $"server={Server}; uid={UserId}; password={Password}; database={Database};";
             }
         }
     }

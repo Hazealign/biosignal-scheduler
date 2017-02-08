@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using BiosignalScheduler.Model;
 using Castle.Core.Logging;
 
 namespace BiosignalScheduler.Scheduler
@@ -21,16 +23,23 @@ namespace BiosignalScheduler.Scheduler
 
         public void Start()
         {
-            _loop = Observable.Interval(new TimeSpan(0, 10, 0))
+            _loop = Observable.Interval(new TimeSpan(0, 1, 0))
                 .StartWith(0L)
                 .Select(value => value + 1)
-                .Select(value => ConsumerManager.Instance.ConsumingList)
+                .Select(value =>
+                {
+                    var list = new List<MqModel>();
+                    for (var i = 0; i < ConsumerManager.Instance.ConsumingList.Count; i++)
+                        list.Add(ConsumerManager.Instance.ConsumingList[i].Clone() as MqModel);
+                    ConsumerManager.Instance.ConsumingList.Clear();
+                    return list;
+                })
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Retry()
                 .Subscribe(list =>
-                {
-                    Operators.ForEach(op => op.Operate(list));
-                    list.Clear();
+                { 
+                    ConsumerManager.Instance.ConsumingList.Clear();
+                    foreach (var op in Operators) op.Operate(list);
                 }, err =>
                 {
                     _logger.Error(err.StackTrace);
