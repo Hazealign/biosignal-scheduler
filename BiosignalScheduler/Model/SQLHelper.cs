@@ -105,7 +105,7 @@ namespace BiosignalScheduler.Model
                     command.Parameters.AddWithValue("@patientId", GetAnonymousId(model.PatientId));
                     command.Parameters.AddWithValue("@startTime", DateTimeToString(startTime));
                     command.Parameters.AddWithValue("@endTime", DateTimeToString(endTime));
-                    command.Parameters.AddWithValue("@waveType", GetMetricId(model.Type));
+                    command.Parameters.AddWithValue("@waveType", GetMetricId(model.Key));
                     command.Parameters.AddWithValue("@filePath", filePath);
 
                     await conn.OpenAsync();
@@ -137,7 +137,7 @@ namespace BiosignalScheduler.Model
                 {
                     command.Parameters.AddWithValue("@patientId", GetAnonymousId(model.PatientId));
                     command.Parameters.AddWithValue("@timestamp", DateTimeToString(model.Timestamp));
-                    command.Parameters.AddWithValue("@observation", GetMetricId(model.Type));
+                    command.Parameters.AddWithValue("@observation", GetMetricId(model.Key));
                     command.Parameters.AddWithValue("@observationValue", model.GetValue());
                     command.Parameters.AddWithValue("@observationValueUnit", model.Unit);
                     command.Parameters.AddWithValue("@ipAddr", $"{model.Host}:{model.Port}");

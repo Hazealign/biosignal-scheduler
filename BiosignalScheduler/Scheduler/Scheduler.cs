@@ -23,12 +23,18 @@ namespace BiosignalScheduler.Scheduler
 
         public void Start()
         {
-            _loop = Observable.Interval(new TimeSpan(0, 1, 0))
-                .StartWith(0L)
-                .Select(value => value + 1)
+            var offset = new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour,
+                IntegerRound(DateTime.Now.Minute) , 0, new TimeSpan(0)) - DateTimeOffset.Now;
+
+            _loop = Observable.Timer(offset)
+                .Select(value => Observable.Interval(new TimeSpan(0, 10, 0)).StartWith(0L))
                 .Select(value =>
                 {
                     var list = new List<MqModel>();
+
+                    // Disable Lint. Because IT NEEDS HARD FOR-LOOP!
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    // ReSharper disable once LoopCanBeConvertedToQuery
                     for (var i = 0; i < ConsumerManager.Instance.ConsumingList.Count; i++)
                         list.Add(ConsumerManager.Instance.ConsumingList[i].Clone() as MqModel);
                     ConsumerManager.Instance.ConsumingList.Clear();
@@ -55,5 +61,7 @@ namespace BiosignalScheduler.Scheduler
         {
             Operators.Add(oper);
         }
+
+        public static int IntegerRound(int i) => ((int) Math.Round(i / 10.0)) * 10;
     }
 }

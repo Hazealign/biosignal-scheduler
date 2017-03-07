@@ -13,7 +13,7 @@ namespace BiosignalScheduler
             InitializeComponent();
 
             var scheduler = new Scheduler.Scheduler();
-            scheduler.AddOperator(new WaveformExport());
+            scheduler.AddOperator(new WaveformExportV2());
             scheduler.AddOperator(new NumericExport());
             scheduler.Start();
         }

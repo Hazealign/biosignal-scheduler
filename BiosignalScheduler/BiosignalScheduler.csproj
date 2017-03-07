@@ -103,6 +103,7 @@
     </ApplicationDefinition>
     <Compile Include="Export\NumericExport.cs" />
     <Compile Include="Export\WaveformExport.cs" />
+    <Compile Include="Export\WaveformExportV2.cs" />
     <Compile Include="Model\DatabaseModel.cs" />
     <Compile Include="Model\MqModel.cs" />
     <Compile Include="Model\SQLHelper.cs" />
