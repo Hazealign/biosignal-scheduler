@@ -5,6 +5,6 @@ namespace BiosignalScheduler.Scheduler
 {
     public interface IScheduleOperator
     {
-        void Operate(List<MqModel> data);
+        void Operate(List<PubsubModel> data);
     }
 }

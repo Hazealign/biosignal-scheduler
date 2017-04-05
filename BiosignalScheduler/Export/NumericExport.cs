@@ -14,12 +14,12 @@ namespace BiosignalScheduler.Export
             Database = ""
         });
 
-        public void Operate(List<MqModel> data)
+        public void Operate(List<PubsubModel> data)
         {
             Filter(data).ForEach(async val => await _helper.InsertNumericValueAsync(val));
         }
 
-        private static List<MqModel> Filter(IEnumerable<MqModel> origin) =>
+        private static List<PubsubModel> Filter(IEnumerable<PubsubModel> origin) =>
             origin.Where(val => val.IsNumeric).ToList();
     }
 }

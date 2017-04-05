@@ -17,7 +17,7 @@ namespace BiosignalScheduler.Export
             Database = ""
         });
 
-        public void Operate(List<MqModel> data)
+        public void Operate(List<PubsubModel> data)
         {
             var startDate = DateTime.Now;
             var endDate = new DateTime(startDate.Ticks + 1000 * 60 * 10);
@@ -30,7 +30,7 @@ namespace BiosignalScheduler.Export
         }
 
         private string WriteToCsv(string patientId, string key,
-            List<MqModel> data, DateTime start, DateTime end)
+            List<PubsubModel> data, DateTime start, DateTime end)
         {
             var tmpPatientId = _helper.GetAnonymousId(patientId);
 
@@ -67,10 +67,10 @@ namespace BiosignalScheduler.Export
             return filePath;
         }
 
-        private static List<MqModel> Filter(IEnumerable<MqModel> origin)
+        private static List<PubsubModel> Filter(IEnumerable<PubsubModel> origin)
             => origin.Where(val => !val.IsNumeric).Distinct(new TypeComparer()).ToList();
 
-        private static List<MqModel> Filter(IEnumerable<MqModel> origin, DateTime start, DateTime end)
+        private static List<PubsubModel> Filter(IEnumerable<PubsubModel> origin, DateTime start, DateTime end)
         {
             var retVal = Filter(origin).FindAll(val => FilterTimestamp(val.Timestamp, start, end));
             retVal.Sort((x, y) => y.Timestamp.CompareTo(x.Timestamp));
@@ -80,15 +80,15 @@ namespace BiosignalScheduler.Export
         private static bool FilterTimestamp(DateTime origin, DateTime start, DateTime end) 
             => DateTime.Compare(origin, end) < 0 && DateTime.Compare(origin, start) >= 0;
 
-        internal class TypeComparer : EqualityComparer<MqModel>
+        internal class TypeComparer : EqualityComparer<PubsubModel>
         {
-            public override bool Equals(MqModel x, MqModel y)
+            public override bool Equals(PubsubModel x, PubsubModel y)
             {
                 if (x == null || y == null) return false;
                 return x.PatientId.Equals(y.PatientId) && x.Key.Equals(y.Key);
             }
 
-            public override int GetHashCode(MqModel obj)
+            public override int GetHashCode(PubsubModel obj)
             {
                 if (obj == null) return 0;
                 return obj.PatientId.GetHashCode() ^ obj.Key.GetHashCode();

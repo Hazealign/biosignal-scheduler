@@ -88,7 +88,7 @@ namespace BiosignalScheduler.Model
             });
         }
 
-        public async Task InsertWaveformValueAsync(MqModel model,
+        public async Task InsertWaveformValueAsync(PubsubModel model,
             string filePath, DateTime startTime, DateTime endTime)
         {
             if (model.IsNumeric)
@@ -119,7 +119,7 @@ namespace BiosignalScheduler.Model
             }
         }
 
-        public async Task InsertNumericValueAsync(MqModel model)
+        public async Task InsertNumericValueAsync(PubsubModel model)
         {
             if (!model.IsNumeric)
                 throw new ArgumentException();

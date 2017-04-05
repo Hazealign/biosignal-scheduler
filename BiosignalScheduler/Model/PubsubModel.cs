@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 namespace BiosignalScheduler.Model
 {
     [Serializable]
-    public class MqModel: ICloneable
+    public class PubsubModel: ICloneable
     { 
         public enum DataType
         {
@@ -65,7 +65,7 @@ namespace BiosignalScheduler.Model
 
         public object Clone()
         {
-            return new MqModel()
+            return new PubsubModel()
             {
                 Timestamp = Timestamp,
                 Host = Host,
