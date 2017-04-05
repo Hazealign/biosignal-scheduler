@@ -60,8 +60,12 @@
       <HintPath>..\packages\AutoFixture.AutoMoq.3.50.2\lib\net40\Ploeh.AutoFixture.AutoMoq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.1.2.1\lib\net45\StackExchange.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net45\System.Reactive.Core.dll</HintPath>
       <Private>True</Private>
@@ -102,14 +106,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Export\NumericExport.cs" />
-    <Compile Include="Export\WaveformExport.cs" />
     <Compile Include="Export\WaveformExportV2.cs" />
     <Compile Include="Model\DatabaseModel.cs" />
-    <Compile Include="Model\MqModel.cs" />
+    <Compile Include="Model\PubsubModel.cs" />
+    <Compile Include="Scheduler\AbstractConsumer.cs" />
+    <Compile Include="Scheduler\RedisConsumer.cs" />
     <Compile Include="Model\SQLHelper.cs" />
-    <Compile Include="Scheduler\ConsumerManager.cs" />
+    <Compile Include="Scheduler\NsqConsumer.cs" />
     <Compile Include="Scheduler\IScheduleOperator.cs" />
     <Compile Include="Scheduler\Scheduler.cs" />
+    <Compile Include="Util\GzipUtil.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
