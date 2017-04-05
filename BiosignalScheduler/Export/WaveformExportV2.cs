@@ -37,38 +37,37 @@ namespace BiosignalScheduler.Export
             List<PubsubModel> data, DateTime start, DateTime end)
         {
             var tmpPatientId = _helper.GetAnonymousId(patientId);
+            // Redefine Data.
+            var list = data.FindAll(obj => obj.Key.Equals(key) && obj.PatientId.Equals(patientId));
+            list.Sort((x, y) => y.Timestamp.CompareTo(x.Timestamp));
+            var newValues = new List<double>();
+            list.ForEach(val => newValues.AddRange((List<double>)val.GetValue()));
 
             var startDateStr = SqlHelper.DateTimeToString(start, "{0:yyyyMMdd}");
             var endDateStr = SqlHelper.DateTimeToString(end, "{0:yyyyMMdd}");
             var startTimeStr = SqlHelper.DateTimeToString(start, "{0:HHmmss}");
             var endTimeStr = SqlHelper.DateTimeToString(end, "{0:HHmmss}");
-
-            var folderPath = $"D:\\BiosignalRepository\\GZIP\\{tmpPatientId}\\{startDateStr}\\";
-            var filePath = folderPath + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{key}.csv.gz";
+            var folderPath = $"D:\\BiosignalRepository\\CSV\\{tmpPatientId}\\{startDateStr}\\";
+            var filePath = folderPath + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{key}.csv";
 
             Directory.CreateDirectory(folderPath);
+
             using (var file = File.Create(filePath))
-            using (var compStream = new GZipStream(file, Compress))
+            using (var gzipStream = new GZipStream(file, CompressionLevel.Fastest))
             {
-                var tmpDate = start;
-
-                while (FilterTimestamp(tmpDate, start, end))
+                for (var i = 1; i <= newValues.Count; ++i)
                 {
-                    var newValues = new List<double>();
-                    var list = Filter(data, tmpDate, tmpDate.AddSeconds(10));
-                    list.ForEach(val => newValues.AddRange((List<double>)val.GetValue()));
+                    var d = newValues[i - 1];
+                    var str = d.ToString(CultureInfo.InvariantCulture);
+                    gzipStream.Write(Encoding.UTF8.GetBytes(str), 0, Encoding.UTF8.GetByteCount(str));
 
-                    for (var i = 0; i <= newValues.Count - 1; i++)
+                    if (i != 1 && (i % ((newValues.Count / 60) + 1)) == 0)
                     {
-                        var bytes = newValues[i].ToString(CultureInfo.InvariantCulture);
-
-                        compStream.Write(Encoding.UTF8.GetBytes(bytes), 0, Encoding.UTF8.GetByteCount(bytes));
-                        if (i != newValues.Count - 1)
-                            file.Write(Encoding.UTF8.GetBytes(","), 0, Encoding.UTF8.GetByteCount(","));
+                        gzipStream.Write(Encoding.UTF8.GetBytes("\n"), 0, Encoding.UTF8.GetByteCount("\n"));
+                        continue;
                     }
 
-                    file.Write(Encoding.UTF8.GetBytes("\n"), 0, Encoding.UTF8.GetByteCount("\n"));
-                    tmpDate = tmpDate.AddSeconds(10);
+                    gzipStream.Write(Encoding.UTF8.GetBytes(","), 0, Encoding.UTF8.GetByteCount(","));
                 }
             }
 
@@ -79,34 +78,34 @@ namespace BiosignalScheduler.Export
             List<PubsubModel> data, DateTime start, DateTime end)
         {
             var tmpPatientId = _helper.GetAnonymousId(patientId);
+            // Redefine Data.
+            var list = data.FindAll(obj => obj.Key.Equals(key) && obj.PatientId.Equals(patientId));
+            list.Sort((x, y) => y.Timestamp.CompareTo(x.Timestamp));
+            var newValues = new List<double>();
+            list.ForEach(val => newValues.AddRange((List<double>)val.GetValue()));
 
             var startDateStr = SqlHelper.DateTimeToString(start, "{0:yyyyMMdd}");
             var endDateStr = SqlHelper.DateTimeToString(end, "{0:yyyyMMdd}");
             var startTimeStr = SqlHelper.DateTimeToString(start, "{0:HHmmss}");
             var endTimeStr = SqlHelper.DateTimeToString(end, "{0:HHmmss}");
-
             var folderPath = $"D:\\BiosignalRepository\\CSV\\{tmpPatientId}\\{startDateStr}\\";
             var filePath = folderPath + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{key}.csv";
 
             Directory.CreateDirectory(folderPath);
             using (var file = File.CreateText(filePath))
             {
-                var tmpDate = start;
-
-                while (FilterTimestamp(tmpDate, start, end))
+                for (var i = 1; i <= newValues.Count; ++i)
                 {
-                    var newValues = new List<double>();
-                    var list = Filter(data, tmpDate, tmpDate.AddSeconds(10));
-                    list.ForEach(val => newValues.AddRange((List<double>) val.GetValue()));
+                    var d = newValues[i - 1];
+                    file.Write(d.ToString(CultureInfo.InvariantCulture));
 
-                    for (var i = 0; i <= newValues.Count - 1; i++)
+                    if (i != 1 && (i % ((newValues.Count / 60) + 1)) == 0)
                     {
-                        file.Write(newValues[i].ToString(CultureInfo.InvariantCulture));
-                        if (i != newValues.Count - 1) file.Write(",");
+                        file.Write("\n");
+                        continue;
                     }
 
-                    file.Write("\n");
-                    tmpDate = tmpDate.AddSeconds(10);
+                    file.Write(",");
                 }
             }
 
