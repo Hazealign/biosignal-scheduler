@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using BiosignalScheduler.Model;
+using static System.IO.Compression.CompressionMode;
 
 namespace BiosignalScheduler.Export
 {
@@ -24,9 +27,52 @@ namespace BiosignalScheduler.Export
 
             Filter(data).ForEach(async val =>
             {
-                var filePath = WriteToCsv(val.PatientId, val.Key, data, startDate, endDate);
+                WriteToCsv(val.PatientId, val.Key, data, startDate, endDate);
+                var filePath = WriteToGzipCsv(val.PatientId, val.Key, data, startDate, endDate);
                 await _helper.InsertWaveformValueAsync(val, filePath, startDate, endDate);
             });
+        }
+
+        private string WriteToGzipCsv(string patientId, string key,
+            List<PubsubModel> data, DateTime start, DateTime end)
+        {
+            var tmpPatientId = _helper.GetAnonymousId(patientId);
+
+            var startDateStr = SqlHelper.DateTimeToString(start, "{0:yyyyMMdd}");
+            var endDateStr = SqlHelper.DateTimeToString(end, "{0:yyyyMMdd}");
+            var startTimeStr = SqlHelper.DateTimeToString(start, "{0:HHmmss}");
+            var endTimeStr = SqlHelper.DateTimeToString(end, "{0:HHmmss}");
+
+            var folderPath = $"D:\\BiosignalRepository\\GZIP\\{tmpPatientId}\\{startDateStr}\\";
+            var filePath = folderPath + $"{startDateStr}{startTimeStr}_{endDateStr}{endTimeStr}_{key}.csv.gz";
+
+            Directory.CreateDirectory(folderPath);
+            using (var file = File.Create(filePath))
+            using (var compStream = new GZipStream(file, Compress))
+            {
+                var tmpDate = start;
+
+                while (FilterTimestamp(tmpDate, start, end))
+                {
+                    var newValues = new List<double>();
+                    var list = Filter(data, tmpDate, tmpDate.AddSeconds(10));
+                    list.ForEach(val => newValues.AddRange((List<double>)val.GetValue()));
+
+                    for (var i = 0; i <= newValues.Count - 1; i++)
+                    {
+                        var bytes = newValues[i].ToString(CultureInfo.InvariantCulture);
+
+                        compStream.Write(Encoding.UTF8.GetBytes(bytes), 0, Encoding.UTF8.GetByteCount(bytes));
+                        if (i != newValues.Count - 1)
+                            file.Write(Encoding.UTF8.GetBytes(","), 0, Encoding.UTF8.GetByteCount(","));
+                    }
+
+                    file.Write(Encoding.UTF8.GetBytes("\n"), 0, Encoding.UTF8.GetByteCount("\n"));
+                    tmpDate = tmpDate.AddSeconds(10);
+                }
+            }
+
+            return filePath;
         }
 
         private string WriteToCsv(string patientId, string key,
